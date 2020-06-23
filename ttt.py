@@ -129,6 +129,8 @@ class TicTacToe:
         else:
             self.EasyAi()
 
+    def HardAi(self):
+
     def analizegame(self, typ):
         results = self.board[:]
         for vert in zip(*self.board):
@@ -141,7 +143,7 @@ class TicTacToe:
         return any(all(i) for i in results)
 
     def play(self):
-        players = ["user", "easy", "medium"]
+        players = ["user", "easy", "medium", "hard"]
         ini = ["start", "exit"]
         while True:
             params = [x.strip() for x in input("Input command ").split()]
@@ -154,12 +156,16 @@ class TicTacToe:
                             self.typeX = "easy"
                         elif params[1] == "medium":
                             self.typeX = "medium"
+                        elif params[1] == "hard":
+                            self.typeX = "hard"
                         if params[2] == "user":
                             self.typeO = "user"
                         elif params[2] == "easy":
                             self.typeO = "easy"
                         elif params[2] == "medium":
                             self.typeO = "medium"
+                        elif params[2] == "hard":
+                            self.typeO = "hard"
                         if params[1] not in players or params[2] not in players:
                             print("Bad parameters!")
                         elif params[1] in players and params[2] in players:
@@ -187,7 +193,11 @@ class TicTacToe:
                     print(self)
                 elif self.typeX == "medium":
                     self.MediumAi()
-                    print('Makin move level "medium"')
+                    print('Making move level "medium"')
+                    print(self)
+                elif self.typeX == "hard":
+                    self.HardAi()
+                    print('Making move level "hard"')
                     print(self)
                 else:
                     print(self.typeX)
@@ -205,6 +215,10 @@ class TicTacToe:
                 elif self.typeO == "medium":
                     self.MediumAi()
                     print('Makin move level "medium"')
+                    print(self)
+                elif self.typeO == "hard":
+                    self.HardAi()
+                    print('Making move level "hard"')
                     print(self)
                 else:
                     x, y = self.coordanalisis()
