@@ -3,6 +3,8 @@ import random
 
 mapx = {1: 0, 2: 1, 3: 2}
 mapy = {1: 2, 2: 1, 3: 0}
+convert = {0: (0, 0), 1: (0, 1), 2: (0, 2), 3: (1, 0),
+           4: (1, 1), 5: (1, 2), 6: (2, 0), 7: (2, 1), 8: (2, 2)}
 
 
 class TicTacToe:
@@ -129,7 +131,101 @@ class TicTacToe:
         else:
             self.EasyAi()
 
-    def HardAi(self):
+    def evaluateboard(self, board, maximizer):
+        board = [board[i-3:i] for i in range(3, 10, 3)]
+        minimizer = "X" if maximizer == "O" else "O"
+        for row in board:
+            if row[0] == row[1] and row[1] == row[2]:
+                if row[0] == maximizer:
+                    return 10
+                elif row[0] == minimizer:
+                    return -10
+        for column in range(3):
+            if board[0][column] == board[1][column] and board[1][column] == board[2][column]:
+                if board[0][column] == maximizer:
+                    return 10
+                elif row[0] == minimizer:
+                    return -10
+
+        if board[0][0] == board[1][1] and board[2][2]:
+            if board[0][0] == maximizer:
+                return 10
+            elif row[0] == minimizer:
+                return -10
+        if board[0][2] == board[1][1] and board[1][1] == board[2][0]:
+            if board[0][2] == maximizer:
+                return 10
+            elif row[0] == minimizer:
+                return -10
+
+        return 0
+
+    def makeMove(self, board, pos, typ):
+        new = board[:]
+        new[pos] = typ
+        return new
+
+    def getMoves(self, board):
+        moves = []
+        for i in board:
+            if i != "X" and i != "O":
+                moves.append(i)
+        return moves
+
+    def state(self, board):
+        results1 = board[:]
+        for vert in zip(*board):
+            results1.append(list(vert))
+        results1.append([board[i][i] for i in range(len(board))])
+        results1.append([board[i][2-i] for i in range(len(board))])
+        results2 = results1[:]
+        for i in range(len(results1)):
+            results1[i] = list(
+                map(lambda x: True if x == "X" else False, results1[i]))
+            results2[i] = list(
+                map(lambda x: True if x == "O" else False, results1[i]))
+        return True if any(all(i) for i in results1) or any(all(i) for i in results2) else False
+
+    def minimax(self, board, player, maximizer, other):
+        nboard = [board[i-3:i] for i in range(3, 10, 3)]
+        if self.state(nboard):
+            return self.evaluateboard(board, player)
+        elif self.getMoves(board) == 0:
+            return self.evaluateboard(board, player)
+        scores = []
+        if maximizer:
+            for move in self.getMoves(board):
+                pos = board[move]
+                board[move] = player
+                scores.append(self.minimax(
+                    board, player, not maximizer, other))
+                board[move] = pos
+        else:
+            for move in self.getMoves(board):
+                pos = board[move]
+                board[move] = other
+                scores.append(self.minimax(
+                    board, player, not maximizer, other))
+                board[move] = pos
+        return max(scores) if maximizer else min(scores)
+
+    def HardAi(self, typ):
+        flatboard = [pos if val == " " else val for pos, val in enumerate(
+            [elem for row in self.board for elem in row])]
+        ai = typ
+        other = "X" if ai == "O" else "O"
+        best_score = -1111111
+        bestmove = None
+        for move in self.getMoves(flatboard):
+            pos = flatboard[move]
+            flatboard[move] = ai
+            score = self.minimax(flatboard, ai, False, other)
+            flatboard[move] = pos
+            if score > best_score:
+                best_score = score
+                bestmove = move
+        x, y = convert[bestmove]
+        self.board[x][y] = typ
 
     def analizegame(self, typ):
         results = self.board[:]
@@ -196,7 +292,7 @@ class TicTacToe:
                     print('Making move level "medium"')
                     print(self)
                 elif self.typeX == "hard":
-                    self.HardAi()
+                    self.HardAi("X")
                     print('Making move level "hard"')
                     print(self)
                 else:
@@ -217,7 +313,7 @@ class TicTacToe:
                     print('Makin move level "medium"')
                     print(self)
                 elif self.typeO == "hard":
-                    self.HardAi()
+                    self.HardAi("O")
                     print('Making move level "hard"')
                     print(self)
                 else:
