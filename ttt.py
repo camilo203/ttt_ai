@@ -182,15 +182,16 @@ class MediumAi:
 
 
 class HardAi:
-    def __init__(self, board):
+    def __init__(self, board, typ):
         self.board = board
+        self.typ = typ
 
     def move(self):
         bestScore = -math.inf
         bestMove = None
         for move in self.board.get_possible_moves():
             self.board.make_move(move)
-            score = self.minimax(False, "O", self.board)
+            score = self.minimax(False, self.typ, self.board)
             self.board.undo()
             if (score > bestScore):
                 bestScore = score
@@ -199,17 +200,19 @@ class HardAi:
         print(self.board)
 
     def minimax(self, isMaxTurn, maximizerMark, board):
-        state = board.get_state()
+        state = self.board.get_state()
         if (state == "DRAW"):
             return 0
         elif (state == "OVER"):
-            return 1 if board.get_winner() == maximizerMark else -1
+            return 1 if self.board.get_winner() == maximizerMark else -1
 
         scores = []
-        for move in board.get_possible_moves():
-            board.make_move(move)
-            scores.append(self.minimax(not isMaxTurn, maximizerMark, board))
-            board.undo()
+        for move in self.board.get_possible_moves():
+            self.board.make_move(move)
+            scores.append(self.minimax(
+                not isMaxTurn, maximizerMark, self.board))
+            self.board.undo()
+
         return max(scores) if isMaxTurn else min(scores)
 
 
@@ -244,7 +247,7 @@ elif X == "easy":
 elif X == "medium":
     X = MediumAi(ttb, "X")
 else:
-    X = HardAi(ttb)
+    X = HardAi(ttb, "X")
 
 if O == "user":
     O = user(ttb)
@@ -253,7 +256,7 @@ elif O == "easy":
 elif O == "medium":
     O = MediumAi(ttb, "O")
 else:
-    O = HardAi(ttb)
+    O = HardAi(ttb, "O")
 
 while True:
     if ttb.get_winner() == "X" or ttb.get_winner() == "O":
