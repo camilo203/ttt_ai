@@ -1,5 +1,6 @@
 import math
 import random
+import time
 
 
 class ticTacBoard:
@@ -187,6 +188,7 @@ class HardAi:
         self.typ = typ
 
     def move(self):
+        start = time.time()
         bestScore = -math.inf
         bestMove = None
         for move in self.board.get_possible_moves():
@@ -197,6 +199,8 @@ class HardAi:
                 bestScore = score
                 bestMove = move
         self.board.make_move(bestMove)
+        end = time.time()
+        print(f"Took {end - start}s")
         print(self.board)
 
     def minimax(self, isMaxTurn, maximizerMark, board):
@@ -212,8 +216,11 @@ class HardAi:
             scores.append(self.minimax(
                 not isMaxTurn, maximizerMark, self.board))
             self.board.undo()
-
         return max(scores) if isMaxTurn else min(scores)
+
+    def firstmove(self):
+        self.board.make_move(0)
+        print(self.board)
 
 
 ttb = ticTacBoard()
@@ -257,7 +264,7 @@ elif O == "medium":
     O = MediumAi(ttb, "O")
 else:
     O = HardAi(ttb, "O")
-
+move = 0
 while True:
     if ttb.get_winner() == "X" or ttb.get_winner() == "O":
         print(f"{ttb.get_winner()} wins")
@@ -265,7 +272,12 @@ while True:
     if ttb.get_state() == "DRAW":
         print("Draw")
         break
-    if ttb.turnX:
-        X.move()
+    if move == 0 and ttb.turnX and type(X).__name__ == "HardAi":
+        move += 1
+        X.firstmove()
     else:
-        O.move()
+        move += 1
+        if ttb.turnX:
+            X.move()
+        else:
+            O.move()
